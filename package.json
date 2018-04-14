@@ -1,0 +1,17 @@
+{
+  "name": "juejin-scrapy",
+  "version": "0.0.1",
+  "description": "掘金爬虫",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "danmin25",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "qs": "^6.5.1",
+    "request": "^2.83.0"
+  }
+}
