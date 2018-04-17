@@ -1,4 +1,3 @@
-var warning = require("./warning");
 /**
  *
  *
@@ -7,29 +6,29 @@ var warning = require("./warning");
  * @returns
  */
 function merge(obj, target) {
-  let _this = Object.assign({}, obj);
+  let copy = Object.assign({}, obj);
   if (!obj instanceof Object || !target instanceof Object) {
-    return warning("参数必须为对象");
+    throw new TypeError('参数必须为对象');
   }
   Object.keys(target).forEach(key => {
-    if (_this[key] === undefined) {
-      _this[key] = target[key];
+    if (copy[key] === undefined) {
+      copy[key] = target[key];
     } else {
-      if (typeof target[key] === "function") {
-        _this[key] = target[key];
+      if (typeof target[key] === 'function') {
+        copy[key] = target[key];
       } else {
         if (target[key] instanceof Object) {
-          if (!(_this[key] instanceof Object)) {
-            _this[key] = {};
+          if (!(copy[key] instanceof Object)) {
+            copy[key] = {};
           }
-          _this[key] = merge(_this[key], target[key]);
+          copy[key] = merge(copy[key], target[key]);
         } else {
-          _this[key] = target[key];
+          copy[key] = target[key];
         }
       }
     }
   });
-  return _this;
+  return copy;
 }
 
 module.exports = merge;

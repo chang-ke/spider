@@ -1,61 +1,50 @@
-const qs = require('qs');
 const fs = require('fs');
-const Riven = require('./util/riven');
+const qs = require('qs');
 const cheerio = require('cheerio');
+const Tiger = require('./util/tiger');
+const login = require('./src/login');
+const getTopics = require('./src/getTopics');
+const getCategorys = require('./src/getCategorys');
+const getDetailData = require('./src/getDetailData');
 
-const isLogin = () => !!require('./user.json').cookie;
+const isLogin = () => !!require('./src/user.json').cookie;
 
 const sleep = time => new Promise(resolve => setTimeout(() => resolve(), time));
 
-async function login(request) {
-  let data = await request.create({
-    url: 'https://juejin.im/auth/type/email',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email: '', password: '' })
-  });
-  const cookie = data.headers['set-cookie'];
-  const encodeToken = cookie[0].split(';')[0].split('=')[1];
-  const decodeToken = JSON.parse(new Buffer(encodeToken, 'base64').toString());
-  fs.writeFileSync(
-    './user.json',
-    JSON.stringify({ cookie, token: decodeToken.token, userId: decodeToken.userId, clientId: decodeToken.clientId })
-  );
+function fsExistsSync(path) {
+  try {
+    fs.accessSync(path, fs.F_OK);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
 
-async function getTopics(request) {
-  const { token, clientId, userId } = require('./user.json');
-  const querystring = qs.stringify({
-    src: 'web',
-    uid: userId,
-    device_id: clientId,
-    token: token,
-    limit: 20,
-    category: 'all',
-    recomment: 1
-  });
-  const data = await request.get({
-    url: `https://timeline-merger-ms.juejin.im/v1/get_entry_by_timeline?${querystring}`,
-    headers: {
-      host: 'timeline-merger-ms.juejin.im',
-      referer: 'https://juejin.im/timeline?sort=comment'
-    }
-  });
-  const body = data.body;
-  if (body.s !== 1) {
-    fs.writeFileSync('./user.json', JSON.stringify({}));
-    throw new Error(body.m);
-  } else {
-    return body.d.entrylist;
+async function savePicture(request, url) {
+  let data = await request.get({ url });
+  const $ = cheerio.load(data.body);
+  const img = $('.lazyload');
+  const origin = request.default();
+  for (let i = 0; i < img.length; ++i) {
+    const url = img[i].src;
+    console.log(img[i].prop('src'));
   }
+  // let urls = data.body.match(/(https:\/\/user-gold-cdn).+?\/ignore-error\/1/g) || [];
+  // if(fsExistsSync('./images')){
+  //   fs.mkdirSync('./images')
+  // }
+  // for (let i = 0; i < urls.length; ++i) {
+  //   const name = urls[i].match(/\/.{16}\?/g)[0].slice(1, -1);
+  //   const f = fs.createWriteStream(`./images/${name}.png`);
+  //   origin.get(urls[i]).pipe(f);
+  // }
 }
 
 try {
   (async function() {
-    const request = new Riven();
+    const request = new Tiger();
     request.setDefaultOptions({
+      //设不设置cookie都OK的
       headers: {
         Cookie:
           'gr_user_id=44868117-2a80-49e8-ba2b-2acd2a77a887; ab={}; _ga=GA1.2.1234597644.150' +
@@ -67,17 +56,23 @@ try {
           'f296bcd6842e5e=1523675329; QINGCLOUDELB=165e4274d6090771b096025ed82d52a1ab7e48fb' +
           '3972913efd95d72fe838c4fb|WtFwy|WtFwr'
       }
-    }); //设不设置cookie都OK的
+    });
     if (!isLogin()) {
       login(request);
     }
-    const topics = await getTopics(request);
+    const topics = await getTopics(request, 'comment');
     for (let i = 0; i < topics.length; ++i) {
-      let data = await request.get({ url: topics[i].originalUrl });
-      await sleep(2000);
-      console.log(data.headers);
+      //await getDetailData(request, topics[i].objectId);
+      await savePicture(request, topics[i].originalUrl);
+      await sleep(2000); //伪线程挂起
     }
   })();
+  process.on('unhandledRejection', error => {
+    if (error.type === 'token') {
+      login();
+    }
+    console.log(error.message);
+  });
 } catch (error) {
-  console.log(error);
+  console.log(error.message);
 }

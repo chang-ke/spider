@@ -1,16 +1,17 @@
 const request = require('request');
 const merge = require('../util/merge');
-const warning = require('../util/warning');
+const warning = message => {
+  throw new Error(message);
+};
 /**
  * @param {object} options
  * @returns
  */
-function Riven(options) {
+function Tiger(options) {
   this.options = options || {
     headers: {
       //"Content-Type": "application/json",
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' +
-          ' Chrome/65.0.3325.181 Safari/537.36',
+      'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36`,
       'X-Requested-With': 'XMLHttpRequest'
     }
   };
@@ -18,10 +19,10 @@ function Riven(options) {
   this.body = null;
   this.error = null;
 }
-Riven.prototype.setResponse = function (res) {
+Tiger.prototype.setResponse = function(res) {
   this.res = res;
 };
-Riven.prototype.getResponse = function (params) {
+Tiger.prototype.getResponse = function(params) {
   let data = null;
   if (params) {
     data = {};
@@ -31,10 +32,8 @@ Riven.prototype.getResponse = function (params) {
   }
   return data || this.res;
 };
-Riven.prototype.create = function (options) {
-  const newOptions = typeof options === 'string'
-    ? merge(this.options, {url: options})
-    : merge(this.options, options);
+Tiger.prototype.create = function(options) {
+  const newOptions = typeof options === 'string' ? merge(this.options, { url: options }) : merge(this.options, options);
   return new Promise((resolve, reject) => {
     request(newOptions, (err, res, body) => {
       if (err) {
@@ -46,9 +45,9 @@ Riven.prototype.create = function (options) {
             Cookie: res.headers['set-cookie']
           }
         });
-        let _body = body
+        let _body = body;
         if (res.headers['content-type'].indexOf('application/json') > -1) {
-          _body = JSON.parse(body)
+          _body = JSON.parse(body);
         }
         resolve({
           ...res,
@@ -58,18 +57,18 @@ Riven.prototype.create = function (options) {
     });
   }).catch(err => console.log(err));
 };
-Riven.prototype.get = function (options) {
-  const newOptions = typeof options === 'string'
-    ? merge(this.options, {url: options})
-    : merge(this.options, options);
+Tiger.prototype.get = function(options) {
+  const newOptions = typeof options === 'string' ? merge(this.options, { url: options }) : merge(this.options, options);
+  //console.log(newOptions)
   return new Promise((resolve, reject) => {
     request.get(newOptions, (err, res, body) => {
       if (err) {
+        console.log(err);
         reject(warning(err));
       } else {
-        let _body = body
+        let _body = body;
         if (res.headers['content-type'].indexOf('application/json') > -1) {
-          _body = JSON.parse(body)
+          _body = JSON.parse(body);
         }
         resolve({
           ...res,
@@ -80,7 +79,7 @@ Riven.prototype.get = function (options) {
   }).catch(err => console.log(err));
 };
 
-Riven.prototype.post = function (options) {
+Tiger.prototype.post = function(options) {
   if (typeof options !== 'object') {
     return warning('options必须为对象');
   }
@@ -90,9 +89,9 @@ Riven.prototype.post = function (options) {
       if (err) {
         reject(warning(err));
       } else {
-        let _body = body
+        let _body = body;
         if (res.headers['content-type'].indexOf('application/json') > -1) {
-          _body = JSON.parse(body)
+          _body = JSON.parse(body);
         }
         resolve({
           ...res,
@@ -103,9 +102,13 @@ Riven.prototype.post = function (options) {
   }).catch(err => console.log(err));
 };
 
-Riven.prototype.setDefaultOptions = function (options) {
+Tiger.prototype.setDefaultOptions = function(options) {
   this.options = merge(this.options, options);
   return this;
 };
 
-module.exports = Riven;
+Tiger.prototype.default = function() {
+  return request;
+};
+
+module.exports = Tiger;
