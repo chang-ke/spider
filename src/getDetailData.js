@@ -1,5 +1,10 @@
 const qs = require('qs');
-
+/**
+ * 
+ * 
+ * @param {object} request 
+ * @param {string} id 
+ */
 async function getDetailData(request, id) {
   const { token, clientId, userId } = require('./user.json');
   const querystring = qs.stringify({

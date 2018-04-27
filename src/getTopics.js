@@ -1,14 +1,21 @@
 const fs = require('fs');
 const qs = require('qs');
-
-async function getTopics(request, entryKey) {
+/**
+ * 
+ * 
+ * @param {object} request 
+ * @param {string} entryKey 
+ * @param {number} limit 
+ * @returns {array} entrylist
+ */
+async function getTopics(request, entryKey, limit) {
   const { token, clientId, userId } = require('./user.json');
   const querystring = qs.stringify({
     src: 'web',
     uid: userId,
     device_id: clientId,
     token: token,
-    limit: 20,
+    limit: limit || 20,
     category: 'all',
     recomment: 1
   });

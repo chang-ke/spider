@@ -1,5 +1,5 @@
 const request = require('request');
-const merge = require('../util/merge');
+const merge = require('./merge');
 const warning = message => {
   throw new Error(message);
 };
