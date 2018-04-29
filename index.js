@@ -24,7 +24,12 @@ function fsExistsSync(path) {
   }
   return true;
 }
-
+/**
+ *
+ *
+ * @param {any} $ cheerio
+ * @param {any} request 请求函数
+ */
 function saveImg($, request) {
   const img = $('.lazyload');
   const origin = request.default();
@@ -63,7 +68,7 @@ async function getPage(request, url) {
 
 function sortToken(map) {
   const words = {};
-  let mapCopy = map;
+  let mapCopy = new Map(map);
   map.forEach((value, key) => {
     //分词长度大于1
     if (value !== 1 && key.length > 1) {
@@ -106,21 +111,21 @@ try {
       login(request);
     }
     const entrys = ['timeline', 'comment', 'rank'];
-    const topics = await getTopics(request, 'comment', 100);
+    const topics = await getTopics(request, entrys[1], 100);
     for (let i = 0; i < topics.length; ++i) {
       //await getDetailData(request, topics[i].objectId);
       await getPage(request, topics[i].originalUrl);
       await sleep(2000); //伪线程挂起
     }
-    //map = sortToken(map);
+    map = sortToken(map);
     console.log(map);
   })();
   process.on('unhandledRejection', error => {
     if (error.type === 'words') {
       login();
     }
-    console.trace(error);
+    console.log(error);
   });
 } catch (error) {
-  console.trace(error);
+  console.log(error);
 }
