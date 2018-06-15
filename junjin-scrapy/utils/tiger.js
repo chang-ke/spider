@@ -107,7 +107,7 @@ Tiger.prototype.setDefaultOptions = function(options) {
   return this;
 };
 
-Tiger.prototype.default = function() {
+Tiger.prototype.getDefault = function() {
   return request;
 };
 

@@ -32,7 +32,7 @@ function fsExistsSync(path) {
  */
 function saveImg($, request) {
   const img = $('.lazyload');
-  const origin = request.default();
+  const origin = request.getDefault();
   for (let i = 0; i < img.length; ++i) {
     //data.body.match(/(https:\/\/user-gold-cdn).+?\/ignore-error\/1/g)
     let src = img.eq(i).prop('data-src');
@@ -129,3 +129,4 @@ try {
 } catch (error) {
   console.log(error);
 }
+
