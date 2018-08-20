@@ -1,0 +1,18 @@
+{
+  "name": "house_price_spider",
+  "version": "1.0.0",
+  "description": "机器学习房价数据爬取",
+  "main": "house.js",
+  "scripts": {
+    "start": "node house.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dengbin",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "random-ua": "0.0.6",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2"
+  }
+}
